@@ -1,72 +1,50 @@
-<script>
-    // 1. FORZAR ACTUALIZACIÓN AL ABRIR
-    // Esto busca si el archivo en GitHub cambió y lo descarga de inmediato
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then(reg => {
-                reg.onupdatefound = () => {
-                    const installingWorker = reg.installing;
-                    installingWorker.onstatechange = () => {
-                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // Si hay una versión nueva, recarga la página solo una vez
-                            window.location.reload();
-                        }
-                    };
-                };
-            });
-        });
+<style>
+    /* ... (resto del CSS igual) ... */
+
+    header {
+        flex: 0 0 auto;
+        background-color: var(--primary);
+        color: white;
+        padding: 10px 15px;
+        z-index: 10;
+        /* BLOQUEO DE INTERACCIÓN: Evita que Android intente "analizar" el texto */
+        user-select: none; 
+        -webkit-user-select: none;
+        touch-action: manipulation;
     }
 
-    // 2. LÓGICA DE NAVEGACIÓN
-    function switchView(viewId, btn) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        document.getElementById('view-' + viewId).classList.add('active');
-        btn.classList.add('active');
+    .status-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        font-size: 10px;
+        text-align: center;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 8px;
+        /* Evita que los toques aquí disparen funciones del sistema */
+        pointer-events: none; 
     }
 
-    // 3. PERSISTENCIA DE MENSAJES (Sincronizada con CaranchoNET)
-    const chat = document.getElementById('chat-container');
-    const input = document.getElementById('mensaje');
+    .status-item span { display: block; color: #bdc3c7; }
+    .status-item b { color: var(--accent); }
+    
+    /* Re-activamos los eventos solo para el botón de borrar si lo necesitas */
+    .clear-btn { pointer-events: auto; }
+</style>
 
-    window.onload = () => {
-        // Al cargar, siempre bajamos al final del chat
-        const guardados = JSON.parse(localStorage.getItem('historial_carancho')) || [];
-        guardados.forEach(msg => agregarMensajeALaPantalla(msg.texto, msg.tipo));
-        chat.scrollTop = chat.scrollHeight;
-    };
-
-    function enviar() {
-        const texto = input.value.trim();
-        if(texto !== "") {
-            agregarMensajeALaPantalla(texto, 'sent');
-            
-            const historial = JSON.parse(localStorage.getItem('historial_carancho')) || [];
-            historial.push({ texto, tipo: 'sent', fecha: Date.now() });
-            localStorage.setItem('historial_carancho', JSON.stringify(historial));
-
-            input.value = "";
-            // Pequeño delay para asegurar que el DOM se actualizó antes de scrollear
-            setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 50);
-        }
-    }
-
-    function agregarMensajeALaPantalla(texto, tipo) {
-        const nuevoMsg = document.createElement('div');
-        nuevoMsg.className = 'msg';
-        nuevoMsg.style.alignSelf = (tipo === 'sent') ? 'flex-end' : 'flex-start';
-        nuevoMsg.style.backgroundColor = (tipo === 'sent') ? '#27ae60' : 'white';
-        nuevoMsg.style.color = (tipo === 'sent') ? 'white' : 'black';
-        nuevoMsg.innerText = texto;
-        chat.appendChild(nuevoMsg);
-    }
-
-    function borrarHistorial() {
-        if(confirm("¿Estás seguro de vaciar el historial de CaranchoNET?")) {
-            localStorage.removeItem('historial_carancho');
-            window.location.reload(); // Esto limpia la vista y fuerza la recarga del caché
-        }
-    }
-
-    input.addEventListener("keypress", (e) => { if (e.key === "Enter") enviar(); });
-</script>
+<header>
+    <div class="header-top">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-tower-broadcast"></i>
+            <strong style="font-size: 1.2rem;">CaranchoNET</strong>
+        </div>
+        <!-- Usamos un div simple en vez de etiquetas que parezcan botones -->
+        <div style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 10px;">
+            <i class="fas fa-location-dot"></i> Tafí Viejo
+        </div>
+    </div>
+    <div class="status-bar">
+        <div class="status-item"><span>Señal:</span><b>EXCELENTE</b></div>
+        <div class="status-item"><span>Modo:</span><b>ACTIVO</b></div>
+        <div class="status-item"><span>Batería:</span><b>85%</b></div>
+    </div>
+</header>
