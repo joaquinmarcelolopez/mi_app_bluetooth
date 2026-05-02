@@ -3,199 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CaranchoNET</title>
-    
-    <!-- VÍNCULO CLAVE PARA PWABUILDER -->
+    <title>CaranchoNET Hub</title>
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Iconos y Estilos externos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #2c3e50; --accent: #27ae60; --bg: #e5ddd5; }
         
-        :root {
-            --primary: #2c3e50;
-            --accent: #27ae60;
-            --bg: #e5ddd5;
-            --nav-bg: #f8f9fa;
-        }
-
         html, body {
             margin: 0; padding: 0;
             height: 100dvh; width: 100vw;
             overflow: hidden; position: fixed;
             display: flex; flex-direction: column;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
+            font-family: sans-serif; background-color: var(--bg);
         }
 
-        /* ENCABEZADO CON BLOQUEO DE ASISTENTES (GEMINI/GOOGLE) */
         header {
-            flex: 0 0 auto;
-            background-color: var(--primary);
-            color: white;
-            padding: 10px 15px;
-            z-index: 10;
-            user-select: none; 
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex: 0 0 auto; background: var(--primary); color: white;
+            padding: 10px 15px; user-select: none;
         }
 
         .status-bar {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            font-size: 10px;
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin-top: 8px;
-            padding-top: 8px;
-            pointer-events: none; /* Los toques atraviesan esto para no disparar info de Google */
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            font-size: 10px; text-align: center; margin-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;
+            pointer-events: none;
         }
 
-        .status-item span { display: block; color: #bdc3c7; }
-        .status-item b { color: var(--accent); }
-
-        /* CONTENEDOR DE PANTALLAS */
         main { flex: 1; overflow-y: auto; position: relative; }
         .view { display: none; height: 100%; flex-direction: column; }
         .view.active { display: flex; }
 
-        /* PANTALLA DE CHAT */
-        #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        #chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .msg { padding: 8px 12px; border-radius: 12px; max-width: 85%; font-size: 0.95rem; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .msg .sender { font-size: 0.7rem; font-weight: bold; display: block; margin-bottom: 4px; opacity: 0.7; }
 
-        .msg {
-            padding: 8px 12px;
-            border-radius: 12px;
-            max-width: 85%;
-            font-size: 0.95rem;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-            word-wrap: break-word;
-        }
-
-        /* ÁREA DE ESCRITURA AJUSTADA PARA SAMSUNG A16 */
         .input-area {
-            flex: 0 0 auto;
-            background-color: white;
-            padding: 10px 10px 35px 10px; 
-            display: flex; gap: 8px;
-            border-top: 1px solid #ddd;
+            flex: 0 0 auto; background: white;
+            padding: 10px 10px 35px 10px; display: flex; gap: 8px; border-top: 1px solid #ddd;
         }
 
         input { flex: 1; height: 44px; border-radius: 22px; border: 1px solid #ccc; padding: 0 15px; font-size: 16px; outline: none; }
-        
-        .send-btn {
-            width: 44px; height: 44px; border-radius: 50%;
-            background-color: var(--primary); color: white;
-            border: none; display: flex; align-items: center; justify-content: center;
-        }
+        .send-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: white; border: none; }
 
-        /* NAVEGACIÓN INFERIOR */
         nav {
-            flex: 0 0 65px;
-            background-color: var(--nav-bg);
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            border-top: 1px solid #ddd;
-            padding-bottom: env(safe-area-inset-bottom);
+            flex: 0 0 65px; background: #f8f9fa;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid #ddd;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #7f8c8d;
-            font-size: 11px;
-            border: none; background: none;
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-            border-top: 3px solid var(--primary);
-        }
-
-        .nav-item i { font-size: 18px; margin-bottom: 2px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #7f8c8d; font-size: 11px; border: none; background: none; }
+        .nav-item.active { color: var(--primary); border-top: 2px solid var(--primary); }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-top">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-tower-broadcast"></i>
-                <strong style="font-size: 1.1rem;">CaranchoNET</strong>
-            </div>
-            <div style="font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 10px;">
-                <i class="fas fa-location-dot"></i> Tafí Viejo
-            </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 1.1rem;"><i class="fas fa-tower-broadcast"></i> CaranchoNET Hub</strong>
+            <span id="hub-status" style="font-size: 10px; color: #e74c3c;"><i class="fas fa-circle"></i> Offline</span>
         </div>
         <div class="status-bar">
-            <div class="status-item"><span>Señal:</span><b>EXCELENTE</b></div>
-            <div class="status-item"><span>Modo:</span><b>ACTIVO</b></div>
-            <div class="status-item"><span>Batería:</span><b>85%</b></div>
+            <div>Señal: <b style="color:var(--accent)">EXC</b></div>
+            <div>Modo: <b style="color:var(--accent)">HUB-MODE</b></div>
+            <div>Bat: <b style="color:var(--accent)">85%</b></div>
         </div>
     </header>
 
     <main>
-        <!-- VISTA MENSAJES -->
         <section id="view-mensajes" class="view active">
             <div id="chat-container"></div>
             <div class="input-area">
-                <input type="text" id="mensaje" placeholder="Escribe un mensaje..." autocomplete="off">
-                <button class="send-btn" onclick="enviar()"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="mensaje" placeholder="Enviar a la red..." autocomplete="off">
+                <button class="send-btn" onclick="enviarMensaje()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </section>
 
-        <!-- VISTA TELEMETRÍA -->
         <section id="view-telemetria" class="view">
-            <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#7f8c8d; flex-direction:column;">
-                <i class="fas fa-chart-line fa-3x"></i>
-                <p>Datos de sensores LoRa</p>
+            <div style="padding:20px; text-align:center; color:#7f8c8d;">
+                <i class="fas fa-microchip fa-3x"></i>
+                <p>Esperando datos de la red LoRa...</p>
             </div>
         </section>
 
-        <!-- VISTA AJUSTES -->
         <section id="view-cuenta" class="view">
             <div style="padding:20px; text-align:center;">
-                <i class="fas fa-cog fa-3x" style="color:#7f8c8d; margin-bottom:20px;"></i>
-                <br>
-                <button onclick="borrarHistorial()" style="color:red; background:none; border:1px solid red; padding:10px 20px; border-radius:5px; font-weight:bold;">LIMPIAR TODO EL CHAT</button>
-                <p style="font-size:10px; color:#999; margin-top:20px;">Versión 1.0.1 - RUTA-LoRa</p>
+                <p>Configuración del Hub</p>
+                <input type="text" id="hub-ip" placeholder="IP del Servidor (ej: 192.168.1.50)" style="width:100%; margin-bottom:10px;">
+                <button onclick="guardarConfig()" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:5px; width:100%;">CONECTAR HUB</button>
             </div>
         </section>
     </main>
 
     <nav>
-        <button class="nav-item active" onclick="switchView('mensajes', this)">
-            <i class="fas fa-comment-dots"></i> Mensajes
-        </button>
-        <button class="nav-item" onclick="switchView('telemetria', this)">
-            <i class="fas fa-sliders"></i> Telemetría
-        </button>
-        <button class="nav-item" onclick="switchView('cuenta', this)">
-            <i class="fas fa-user-cog"></i> Mi Cuenta
-        </button>
+        <button class="nav-item active" onclick="switchView('mensajes', this)"><i class="fas fa-comment"></i> Mensajes</button>
+        <button class="nav-item" onclick="switchView('telemetria', this)"><i class="fas fa-broadcast-tower"></i> Nodos</button>
+        <button class="nav-item" onclick="switchView('cuenta', this)"><i class="fas fa-network-wired"></i> Hub</button>
     </nav>
 
     <script>
+        let serverIP = localStorage.getItem('hub_ip') || 'http://192.168.1.50:5000';
+        document.getElementById('hub-ip').value = serverIP.replace('http://', '').replace(':5000', '');
+
         const chat = document.getElementById('chat-container');
         const input = document.getElementById('mensaje');
+        const statusLabel = document.getElementById('hub-status');
 
-        // Navegación fluida
         function switchView(viewId, btn) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -203,45 +116,72 @@
             btn.classList.add('active');
         }
 
-        // Carga persistente desde LocalStorage
-        window.onload = () => {
-            const guardados = JSON.parse(localStorage.getItem('historial_carancho')) || [];
-            guardados.forEach(msg => agregarMensajeALaPantalla(msg.texto, msg.tipo));
-            chat.scrollTop = chat.scrollHeight;
-        };
+        function guardarConfig() {
+            let ipValue = document.getElementById('hub-ip').value.trim();
+            serverIP = `http://${ipValue}:5000`;
+            localStorage.setItem('hub_ip', serverIP);
+            alert("Configuración guardada. Intentando conectar...");
+        }
 
-        function enviar() {
+        // ENVIAR MENSAJE AL SERVIDOR PYTHON
+        async function enviarMensaje() {
             const texto = input.value.trim();
-            if(texto !== "") {
-                agregarMensajeALaPantalla(texto, 'sent');
-                
-                const historial = JSON.parse(localStorage.getItem('historial_carancho')) || [];
-                historial.push({ texto, tipo: 'sent', fecha: Date.now() });
-                localStorage.setItem('historial_carancho', JSON.stringify(historial));
+            if(!texto) return;
 
-                input.value = "";
-                setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 50);
+            try {
+                const response = await fetch(`${serverIP}/enviar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        texto: texto,
+                        remitente: "A16-Joaquin"
+                    })
+                });
+                
+                if(response.ok) {
+                    input.value = "";
+                    fetchMensajes(); // Actualizar de inmediato
+                }
+            } catch (error) {
+                console.error("Error al enviar", error);
+                alert("No se pudo conectar con el Hub en " + serverIP);
             }
         }
 
-        function agregarMensajeALaPantalla(texto, tipo) {
+        // RECIBIR MENSAJES DEL SERVIDOR
+        async function fetchMensajes() {
+            try {
+                const response = await fetch(`${serverIP}/recibir`);
+                const mensajes = await response.json();
+                
+                statusLabel.innerHTML = '<i class="fas fa-circle" style="color:#27ae60"></i> Online';
+                
+                chat.innerHTML = ""; // Limpiar para re-dibujar (puedes optimizar esto luego)
+                mensajes.forEach(msg => {
+                    const tipo = (msg.remitente === "A16-Joaquin") ? 'sent' : 'received';
+                    agregarMensajeALaPantalla(msg.texto, tipo, msg.remitente);
+                });
+                chat.scrollTop = chat.scrollHeight;
+            } catch (error) {
+                statusLabel.innerHTML = '<i class="fas fa-circle"></i> Offline';
+            }
+        }
+
+        function agregarMensajeALaPantalla(texto, tipo, remitente) {
             const nuevoMsg = document.createElement('div');
             nuevoMsg.className = 'msg';
             nuevoMsg.style.alignSelf = (tipo === 'sent') ? 'flex-end' : 'flex-start';
             nuevoMsg.style.backgroundColor = (tipo === 'sent') ? '#27ae60' : 'white';
             nuevoMsg.style.color = (tipo === 'sent') ? 'white' : 'black';
-            nuevoMsg.innerText = texto;
+            
+            nuevoMsg.innerHTML = `<span class="sender">${remitente}</span>${texto}`;
             chat.appendChild(nuevoMsg);
         }
 
-        function borrarHistorial() {
-            if(confirm("¿Restablecer historial de CaranchoNET?")) {
-                localStorage.clear();
-                window.location.reload();
-            }
-        }
+        // Consultar mensajes automáticamente cada 3 segundos
+        setInterval(fetchMensajes, 3000);
 
-        input.addEventListener("keypress", (e) => { if (e.key === "Enter") enviar(); });
+        input.addEventListener("keypress", (e) => { if (e.key === "Enter") enviarMensaje(); });
     </script>
 </body>
 </html>
