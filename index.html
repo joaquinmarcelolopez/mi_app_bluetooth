@@ -1,75 +1,90 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensajería RN9 - LoRa</title>
-    <!-- ESTA LÍNEA ES CLAVE PARA PWABUILDER -->
-    <link rel="manifest" href="manifest.json">
-    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <style>
-        :root { --primary: #2c3e50; --accent: #27ae60; --bg: #f4f7f6; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { background: var(--primary); color: white; padding: 15px; text-align: center; }
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .message { max-width: 80%; padding: 10px; border-radius: 15px; background: var(--accent); color: white; align-self: flex-end; }
-        .meta { font-size: 0.7rem; opacity: 0.8; text-align: right; }
-        .input-area { background: white; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 25px; }
-        button { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<header>
-    <strong>Ruta LoRa - Mensajería</strong>
-    <div id="status" style="font-size: 0.7rem;">Detectando...</div>
-</header>
-
-<div id="chat-container"></div>
-
-<div class="input-area">
-    <input type="text" id="msg-input" placeholder="Escribe un mensaje..." autocomplete="off">
-    <button onclick="enviarMensaje()">Enviar</button>
-</div>
-
-<script>
-    const db = new Dexie("ChatRuta9");
-    db.version(1).stores({ mensajes: '++id, fecha, texto, via' });
-
-    async function cargarHistorial() {
-        const historial = await db.mensajes.orderBy('fecha').toArray();
-        historial.forEach(m => mostrarEnPantalla(m));
+<style>
+    /* 1. CLAVAMOS EL FONDO Y QUITAMOS SCROLL GENERAL */
+    html, body {
+        margin: 0;
+        padding: 0;
+        /* Usamos '100vh' para forzar que sea exactamente el alto de la ventana visible,
+           restando el espacio que ocupa la barra de URL de Android. */
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden; /* Prohibido el scroll en el cuerpo principal */
+        position: fixed; /* Evita rebotes al deslizar */
+        display: flex;
+        flex-direction: column;
+        background-color: #f4f7f6; /* Color de fondo suave */
     }
 
-    function mostrarEnPantalla(m) {
-        const div = document.createElement('div');
-        div.className = 'message';
-        const hora = new Date(m.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        div.innerHTML = `<div>${m.texto}</div><div class="meta">${hora} • via ${m.via}</div>`;
-        document.getElementById('chat-container').appendChild(div);
-        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+    /* 2. HEADER COMPACTO */
+    header {
+        flex-shrink: 0;
+        height: 50px; /* Reducimos la altura (antes quizás 60-70px) */
+        background-color: #2c3e50;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 10;
     }
 
-    async function enviarMensaje() {
-        const input = document.getElementById('msg-input');
-        if (!input.value.trim()) return;
-        const msg = { texto: input.value, fecha: Date.now(), via: navigator.onLine ? "Internet" : "LoRa" };
-        await db.mensajes.add(msg);
-        mostrarEnPantalla(msg);
-        input.value = '';
+    header h1 {
+        margin: 0;
+        font-size: 1.2rem; /* Texto un poco más chico */
     }
 
-    // REGISTRO DEL SERVICE WORKER (Para PWABuilder)
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(reg => console.log('SW registrado', reg))
-                .catch(err => console.log('Error SW', err));
-        });
+    /* 3. EL CHAT: ÚNICA ZONA CON SCROLL */
+    #chat-container {
+        flex: 1; /* Toma todo el espacio disponible entre header e input */
+        overflow-y: auto; /* Solo permitimos scroll vertical aquí */
+        padding: 10px; /* Padding más compacto */
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* Espacio entre mensajes más chico */
+        /* Suaviza el scroll en móviles */
+        -webkit-overflow-scrolling: touch;
     }
 
-    cargarHistorial();
-</script>
-</body>
-</html>
+    /* Estilo de mensajes (compactos) */
+    .message {
+        max-width: 85%;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        line-height: 1.3;
+    }
+    .message.sent { align-self: flex-end; background-color: #27ae60; color: white; }
+    .message.received { align-self: flex-start; background-color: #ecf0f1; color: #333; }
+
+    /* 4. ÁREA DE ENTRADA MUY COMPACTA */
+    .input-area {
+        flex-shrink: 0;
+        height: 60px; /* Reducimos la altura (antes quizás 80px) */
+        background-color: white;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        border-top: 1px solid #ddd;
+        gap: 8px;
+        box-sizing: border-box; /* Importante para que el padding no sume altura */
+    }
+
+    .input-area input {
+        flex: 1;
+        height: 40px; /* Input más bajo */
+        padding: 0 15px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        font-size: 16px; /* Mantenemos 16px para evitar zoom automático en iOS */
+    }
+
+    .input-area button {
+        height: 40px;
+        padding: 0 20px;
+        border-radius: 20px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+</style>
