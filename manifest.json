@@ -1,6 +1,6 @@
 {
-  "name": "Mensajería RN9 LoRa",
-  "short_name": "RN9Chat",
+  "name": "CranchoNET",
+  "short_name": "CranchoNET",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#2c3e50",
