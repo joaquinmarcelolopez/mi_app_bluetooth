@@ -1,1 +1,8 @@
-
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.joaquinmarcelolopez.twa",
+        "sha256_cert_fingerprints": ["5B:70:1A:53:3D:B3:BA:3A:AE:ED:5D:56:F1:52:BC:40:BE:6D:98:D8:27:F6:60:4C:1A:74:78:18:F7:52:ED:BE"]
+      }
+    }]
