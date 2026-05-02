@@ -1,22 +1,17 @@
 {
   "name": "CaranchoNET",
-  "short_name": "CaranchoNET",
-  "start_url": "./index.html",
+  "short_name": "Carancho",
+  "description": "Sistema de mensajería para la Red RUTA-LoRa",
+  "start_url": "index.html",
   "display": "standalone",
-  "version": "1.0.0",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
   "icons": [
     {
       "src": "icon.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "any maskable"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/3233/3233739.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
