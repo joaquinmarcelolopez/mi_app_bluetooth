@@ -1,6 +1,6 @@
 {
-  "name": "CranchoNET",
-  "short_name": "CranchoNET",
+  "name": "CaranchoNET",
+  "short_name": "CaranchoNET",
   "start_url": "./index.html",
   "display": "standalone",
   "version": "1.0.1",
