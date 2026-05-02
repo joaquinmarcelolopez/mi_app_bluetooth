@@ -1,6 +1,6 @@
 {
   "name": "CaranchoNET",
-  "short_name": "Carancho",
+  "short_name": "CaranchoNET",
   "description": "Sistema de mensajería para la Red RUTA-LoRa",
   "start_url": "index.html",
   "display": "standalone",
