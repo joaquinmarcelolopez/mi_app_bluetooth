@@ -1,90 +1,68 @@
 <style>
-    /* 1. CLAVAMOS EL FONDO Y QUITAMOS SCROLL GENERAL */
+    /* 1. EL TRUCO DEFINITIVO: svh */
     html, body {
         margin: 0;
         padding: 0;
-        /* Usamos '100vh' para forzar que sea exactamente el alto de la ventana visible,
-           restando el espacio que ocupa la barra de URL de Android. */
-        height: 100vh;
+        /* svh se ajusta al área pequeña visible, ignorando la barra de URL */
+        height: 100svh; 
         width: 100vw;
-        overflow: hidden; /* Prohibido el scroll en el cuerpo principal */
-        position: fixed; /* Evita rebotes al deslizar */
+        overflow: hidden;
+        position: fixed;
         display: flex;
         flex-direction: column;
-        background-color: #f4f7f6; /* Color de fondo suave */
+        background-color: #f4f7f6;
     }
 
-    /* 2. HEADER COMPACTO */
+    /* 2. HEADER FIJO */
     header {
-        flex-shrink: 0;
-        height: 50px; /* Reducimos la altura (antes quizás 60-70px) */
+        flex: 0 0 50px; /* No crece, no se achica, mide 50px */
         background-color: #2c3e50;
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         z-index: 10;
     }
 
-    header h1 {
-        margin: 0;
-        font-size: 1.2rem; /* Texto un poco más chico */
-    }
-
-    /* 3. EL CHAT: ÚNICA ZONA CON SCROLL */
+    /* 3. CONTENEDOR DE MENSAJES */
     #chat-container {
-        flex: 1; /* Toma todo el espacio disponible entre header e input */
-        overflow-y: auto; /* Solo permitimos scroll vertical aquí */
-        padding: 10px; /* Padding más compacto */
+        flex: 1; /* Ocupa todo lo que sobra */
+        overflow-y: auto;
+        padding: 10px;
         display: flex;
         flex-direction: column;
-        gap: 8px; /* Espacio entre mensajes más chico */
-        /* Suaviza el scroll en móviles */
+        gap: 8px;
+        background-color: #e5ddd5; /* Color clásico de chat para probar visibilidad */
         -webkit-overflow-scrolling: touch;
     }
 
-    /* Estilo de mensajes (compactos) */
-    .message {
-        max-width: 85%;
-        padding: 8px 12px;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        line-height: 1.3;
-    }
-    .message.sent { align-self: flex-end; background-color: #27ae60; color: white; }
-    .message.received { align-self: flex-start; background-color: #ecf0f1; color: #333; }
-
-    /* 4. ÁREA DE ENTRADA MUY COMPACTA */
+    /* 4. ÁREA DE ENTRADA AL RAS DEL TECLADO */
     .input-area {
-        flex-shrink: 0;
-        height: 60px; /* Reducimos la altura (antes quizás 80px) */
+        flex: 0 0 60px; /* Altura fija */
         background-color: white;
         display: flex;
         align-items: center;
         padding: 0 10px;
         border-top: 1px solid #ddd;
-        gap: 8px;
-        box-sizing: border-box; /* Importante para que el padding no sume altura */
+        box-sizing: border-box;
     }
 
-    .input-area input {
+    input {
         flex: 1;
-        height: 40px; /* Input más bajo */
-        padding: 0 15px;
+        height: 35px;
+        border-radius: 18px;
         border: 1px solid #ccc;
-        border-radius: 20px;
-        font-size: 16px; /* Mantenemos 16px para evitar zoom automático en iOS */
+        padding: 0 15px;
+        font-size: 16px; /* Evita zoom automático en Android */
     }
 
-    .input-area button {
-        height: 40px;
-        padding: 0 20px;
-        border-radius: 20px;
+    button {
+        margin-left: 5px;
+        height: 35px;
+        padding: 0 15px;
+        border-radius: 18px;
         background-color: #27ae60;
         color: white;
         border: none;
-        font-weight: bold;
-        font-size: 0.9rem;
     }
 </style>
